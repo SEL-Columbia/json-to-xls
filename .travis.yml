@@ -1,10 +1,5 @@
 language: java
 
-env:
-  global:
-    - NEXUS_USERNAME=admin
-    - secure: "HsbkikDl1P5esssQKkBtyIx+VSiUUZHDggQEBn8azJx3YN1Bj904EwVOCqsD42ABfcFjGTQ+cKoZ0OcKTpc0uTg3nu4GgMmwwmnKNw8DVNt43IkIOrnRsRIL8pHJUe4wiKwIpN5I8Rp4o7Jd+489/wmwnPfKmP1otmtq74KZoJA="
-
 before_script:
   - gradle clean build
   
