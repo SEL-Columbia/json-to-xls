@@ -51,6 +51,7 @@ public class XlsResource {
     public Response generateExcelFromTemplate(@PathParam(TOKEN_PATH_PARAM) String templateToken, String jsonData) {
         logger.debug(format("Got request with Token: {0} and JSON: {1}", templateToken, jsonData));
         String generatedPackageName = "";
+        Object deserializedObject;
         try {
             byte[] template = templateRepository.findByToken(templateToken);
             if (template == null) {
@@ -59,9 +60,19 @@ public class XlsResource {
             if (isBlank(jsonData)) {
                 return badRequest(format(Messages.EMPTY_JSON_DATA, templateToken));
             }
-            generatedPackageName = converter.generateJavaClasses(jsonData);
+
+            if(jsonData.startsWith("[")){
+                //Able to handle json array
+                deserializedObject = objectDeserializer.makeJsonList(generatedPackageName,
+                    jsonData);
+            }else{
+                generatedPackageName = converter.generateJavaClasses(jsonData);
+                deserializedObject = objectDeserializer.makeJsonObject(generatedPackageName,
+                    jsonData);
+            }  
+            
             Map<String, Object> beans = new HashMap<>();
-            beans.put(ROOT_DATA_OBJECT, objectDeserializer.makeJsonObject(generatedPackageName, jsonData));
+            beans.put(ROOT_DATA_OBJECT, deserializedObject);
             byte[] generatedExcel = excelUtil.generateExcel(beans, template);
             String generatedExcelToken = UUIDUtils.newUUID();
             excelRepository.add(generatedExcelToken, templateToken, generatedExcel);
