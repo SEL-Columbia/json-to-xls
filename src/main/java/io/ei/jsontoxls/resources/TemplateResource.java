@@ -1,9 +1,11 @@
 package io.ei.jsontoxls.resources;
 
+import io.ei.jsontoxls.AllConstants;
 import io.ei.jsontoxls.Messages;
 import io.ei.jsontoxls.repository.TemplateRepository;
 import io.ei.jsontoxls.util.ExcelUtils;
 import io.ei.jsontoxls.util.ResponseFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ import static io.ei.jsontoxls.AllConstants.MEDIA_TYPE_MS_EXCEL;
 import static io.ei.jsontoxls.AllConstants.TOKEN_PATH_PARAM;
 import static io.ei.jsontoxls.util.UUIDUtils.newUUID;
 import static java.text.MessageFormat.format;
-import static org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace;
+import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 @Path("/templates")
 public class TemplateResource {
@@ -48,7 +50,7 @@ public class TemplateResource {
             return ResponseFactory.created(token);
         } catch (Exception e) {
             logger.error(format("Unable to save template. Exception Message: {0}. Stack trace: {1}.", e.getMessage(),
-                    getFullStackTrace(e)));
+                    getStackTrace(e)));
             return ResponseFactory.internalServerError(Messages.UNABLE_TO_SAVE_TEMPLATE);
         }
     }
@@ -72,7 +74,7 @@ public class TemplateResource {
             return ResponseFactory.ok(templateToken);
         } catch (Exception e) {
             logger.error(format("Unable to update template. Exception Message: {0}. Stack trace: {1}.", e.getMessage(),
-                    getFullStackTrace(e)));
+                    getStackTrace(e)));
             return ResponseFactory.internalServerError(Messages.UNABLE_TO_UPDATE_TEMPLATE);
         }
     }
@@ -86,7 +88,9 @@ public class TemplateResource {
             return ResponseFactory.notFound(MessageFormat.format(Messages.INVALID_TEMPLATE_TOKEN, token));
         }
 
-        return ResponseFactory.excel(getExcelAsOutputStream(generatedExcel));
+        String filename = token + "." + AllConstants.DEFAULT_EXTENSION;
+        return ResponseFactory.excel(getExcelAsOutputStream(generatedExcel),
+                                     filename);
     }
 
     private StreamingOutput getExcelAsOutputStream(final byte[] excelBytes) {
